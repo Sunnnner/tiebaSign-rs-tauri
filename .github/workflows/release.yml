@@ -126,21 +126,21 @@ jobs:
 
       - name: Rename artifacts
         run: |
-          mv "artifacts/aarch64/dmg/BaiDu_1_aarch64.dmg" "artifacts/BaiDu_1_macos_aarch64.dmg"
-          mv "artifacts/aarch64/macos/BaiDu.app.tar.gz" "artifacts/BaiDu_1_macos_aarch64.app.tar.gz"
-          mv "artifacts/aarch64/macos/BaiDu.app.tar.gz.sig" "artifacts/BaiDu_1_macos_aarch64.app.tar.gz.sig"
+          mv "artifacts/aarch64/dmg/BaiDu_0.0.1_aarch64.dmg" "artifacts/BaiDu_0.0.1_macos_aarch64.dmg"
+          mv "artifacts/aarch64/macos/BaiDu.app.tar.gz" "artifacts/BaiDu_0.0.1_macos_aarch64.app.tar.gz"
+          mv "artifacts/aarch64/macos/BaiDu.app.tar.gz.sig" "artifacts/BaiDu_0.0.1_macos_aarch64.app.tar.gz.sig"
 
-          mv "artifacts/x86_64/dmg/BaiDu_1_x64.dmg" "artifacts/BaiDu_1_macos_x86_64.dmg"
-          mv "artifacts/x86_64/macos/BaiDu.app.tar.gz" "artifacts/BaiDu_1_macos_x86_64.app.tar.gz"
-          mv "artifacts/x86_64/macos/BaiDu.app.tar.gz.sig" "artifacts/BaiDu_1_macos_x86_64.app.tar.gz.sig"
+          mv "artifacts/x86_64/dmg/BaiDu_0.0.1_x64.dmg" "artifacts/BaiDu_0.0.1_macos_x86_64.dmg"
+          mv "artifacts/x86_64/macos/BaiDu.app.tar.gz" "artifacts/BaiDu_0.0.1_macos_x86_64.app.tar.gz"
+          mv "artifacts/x86_64/macos/BaiDu.app.tar.gz.sig" "artifacts/BaiDu_0.0.1_macos_x86_64.app.tar.gz.sig"
 
-          mv "artifacts/x86_64/deb/BaiDu_1_amd64.deb" "artifacts/x86_64/deb/BaiDu_1_linux_x86_64.deb"
-          mv "artifacts/x86_64/appimage/BaiDu_1_amd64.AppImage.tar.gz" "artifacts/BaiDu_1_linux_x86_64.AppImage.tar.gz"
-          mv "artifacts/x86_64/appimage/BaiDu_1_amd64.AppImage.tar.gz.sig" "artifacts/BaiDu_1_linux_x86_64.AppImage.tar.gz.sig"
+          mv "artifacts/x86_64/deb/BaiDu_0.0.1_amd64.deb" "artifacts/x86_64/deb/BaiDu_0.0.1_linux_x86_64.deb"
+          mv "artifacts/x86_64/appimage/BaiDu_0.0.1_amd64.AppImage.tar.gz" "artifacts/BaiDu_0.0.1_linux_x86_64.AppImage.tar.gz"
+          mv "artifacts/x86_64/appimage/BaiDu_0.0.1_amd64.AppImage.tar.gz.sig" "artifacts/BaiDu_0.0.1_linux_x86_64.AppImage.tar.gz.sig"
 
-          mv "artifacts/x86_64/BaiDu_1_x64_en-US.msi" "artifacts/BaiDu_1_windows_x86_64.msi"
-          mv "artifacts/x86_64/BaiDu_1_x64_en-US.msi.zip" "artifacts/BaiDu_1_windows_x86_64.msi.zip"
-          mv "artifacts/x86_64/BaiDu_1_x64_en-US.msi.zip.sig" "artifacts/BaiDu_1_windows_x86_64.msi.zip.sig"
+          mv "artifacts/x86_64/BaiDu_0.0.1_x64_en-US.msi" "artifacts/BaiDu_0.0.1_windows_x86_64.msi"
+          mv "artifacts/x86_64/BaiDu_0.0.1_x64_en-US.msi.zip" "artifacts/BaiDu_0.0.1_windows_x86_64.msi.zip"
+          mv "artifacts/x86_64/BaiDu_0.0.1_x64_en-US.msi.zip.sig" "artifacts/BaiDu_0.0.1_windows_x86_64.msi.zip.sig"
 
       - name: Create Release
         uses: softprops/action-gh-release@master
