@@ -1,0 +1,137 @@
+name: Release CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-baidu:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build: linux
+            os: ubuntu-latest
+            arch: x86_64
+            target: x86_64-unknown-linux-gnu
+          - build: macos
+            os: macos-latest
+            arch: x86_64
+            target: x86_64-apple-darwin
+          - build: windows
+            os: windows-latest
+            arch: x86_64
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: 'Setup Rust'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install xattr (macos only)
+        if: matrix.os == 'macos-latest'
+        run: pip install xattr
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - run: pnpm tauri build
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - uses: actions/upload-artifact@v3
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: artifacts-${{ matrix.arch }}
+          path: |
+            ./target/release/bundle/deb/bai-du_0.0.1_amd64.deb
+
+      - uses: actions/upload-artifact@v3
+        if: matrix.os == 'macos-latest'
+        with:
+          name: artifacts-${{ matrix.arch }}
+          path: |
+            ./target/release/bundle/dmg/BaiDu_0.0.1_x64.dmg
+
+      - uses: actions/upload-artifact@v3
+        if: matrix.os == 'windows-latest'
+        with:
+          name: artifacts-${{ matrix.arch }}
+          path: |
+            ./target/release/bundle/msi/BaiDu_0.0.1_x64_en-US.msi
+
+  release-baidu:
+    needs: build-baidu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install xattr
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xattr
+
+      - name: Query version number
+        run: echo "version=1" >> $GITHUB_ENV
+
+      - name: Download x86_64 artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts-x86_64
+          path: artifacts/x86_64
+
+      - name: Download aarch64 artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts-aarch64
+          path: artifacts/aarch64
+
+      - name: Rename artifacts
+        run: |
+          mv "artifacts/x86_64/dmg/BaiDu_0.0.1_x64.dmg" "artifacts/BaiDu_0.0.1_macos_x86_64.dmg"
+          mv "artifacts/x86_64/deb/bai-du_0.0.1_amd64.deb" "artifacts/x86_64/deb/BaiDu_0.0.1_linux_x86_64.deb"
+          mv "artifacts/x86_64/BaiDu_0.0.1_x64_en-US.msi" "artifacts/BaiDu_0.0.1_windows_x86_64.msi"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1
+          name: BaiDu v1
+          body: See the assets to download this version and install.
+          prerelease: false
+          generate_release_notes: false
+          files: ./artifacts/**/*
