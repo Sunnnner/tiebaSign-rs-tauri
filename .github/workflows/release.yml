@@ -80,23 +80,21 @@ jobs:
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/appimage/**.AppImage
-            ./target/${{ matrix.target }}/release/bundle/deb/**.deb
+            ./target/${{ matrix.target }}/release/bundle/deb/bai-du_0.0.1_amd64.deb
 
       - uses: actions/upload-artifact@v3
         if: matrix.os == 'macos-latest'
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/dmg/**.dmg
-            ./target/${{ matrix.target }}/release/bundle/macos/**.app.*
+            ./target/${{ matrix.target }}/release/bundle/dmg/BaiDu_0.0.1_x64.dmg
 
       - uses: actions/upload-artifact@v3
         if: matrix.os == 'windows-latest'
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/msi/**
+            ./target/${{ matrix.target }}/release/bundle/msi/BaiDu_0.0.1_x64_en-US.msi
 
   release-baidu:
     needs: build-baidu
