@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "BaiDu",
-    "version": "0.0.1"
+    "version": "1"
   },
   "tauri": {
     "allowlist": {
