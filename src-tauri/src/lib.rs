@@ -36,6 +36,14 @@ pub enum Error {
         #[from]
         std::time::SystemTimeError,
     ),
+    #[error("std error")]
+    Std(
+        #[serde_as(as = "DisplayFromStr")]
+        #[from]
+        std::io::Error,
+    ),
+    #[error("error: {0}")]
+    Error(String),
 }
 
 // 自定义错误类型

@@ -12,10 +12,14 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
+      "all": true,
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": [
+          "https://**",
+          "http://**"
+        ]
       }
     },
     "bundle": {
@@ -40,7 +44,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tiebaSign-tauri",
+        "title": "百度贴吧签到助手",
         "width": 800,
         "height": 600
       }
