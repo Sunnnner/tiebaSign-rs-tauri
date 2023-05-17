@@ -19,10 +19,6 @@ jobs:
             os: macos-latest
             arch: x86_64
             target: x86_64-apple-darwin
-          - build: macos
-            os: macos-latest
-            arch: aarch64
-            target: aarch64-apple-darwin
           - build: windows
             os: windows-latest
             arch: x86_64
@@ -80,21 +76,21 @@ jobs:
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/deb/bai-du_0.0.1_amd64.deb
+            ./target/release/bundle/deb/bai-du_0.0.1_amd64.deb
 
       - uses: actions/upload-artifact@v3
         if: matrix.os == 'macos-latest'
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/dmg/BaiDu_0.0.1_x64.dmg
+            ./target/release/bundle/dmg/BaiDu_0.0.1_x64.dmg
 
       - uses: actions/upload-artifact@v3
         if: matrix.os == 'windows-latest'
         with:
           name: artifacts-${{ matrix.arch }}
           path: |
-            ./target/${{ matrix.target }}/release/bundle/msi/BaiDu_0.0.1_x64_en-US.msi
+            ./target/release/bundle/msi/BaiDu_0.0.1_x64_en-US.msi
 
   release-baidu:
     needs: build-baidu
