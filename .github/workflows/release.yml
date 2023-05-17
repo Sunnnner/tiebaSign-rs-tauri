@@ -69,7 +69,7 @@ jobs:
       - name: Install rust target
         run: rustup target add ${{ matrix.target }}
 
-      - run: pnpm tauri build --release
+      - run: pnpm tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
