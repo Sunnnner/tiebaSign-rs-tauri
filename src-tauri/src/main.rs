@@ -6,7 +6,7 @@ use crypto::digest::Digest;
 use crypto::md5::Md5;
 use reqwest::header;
 use reqwest::Client as re_client;
-use tiebaSign_tauri::{FavoriteRes, Result, Tbs, Error};
+use BaiDu::{FavoriteRes, Result, Tbs, Error};
 
 const LIKE_URL: &str = "https://tieba.baidu.com/mo/q/newmoindex";
 const TBS_URL: &str = "http://tieba.baidu.com/dc/common/tbs";
