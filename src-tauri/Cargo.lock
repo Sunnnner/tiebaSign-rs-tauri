@@ -3,6 +3,22 @@
 version = 3
 
 [[package]]
+name = "BaiDu"
+version = "0.0.0"
+dependencies = [
+ "dirs",
+ "reqwest",
+ "rust-crypto",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "tauri",
+ "tauri-build",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3577,22 +3593,6 @@ checksum = "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
 dependencies = [
  "cfg-if",
  "once_cell",
-]
-
-[[package]]
-name = "tiebaSign-tauri"
-version = "0.0.0"
-dependencies = [
- "dirs",
- "reqwest",
- "rust-crypto",
- "serde",
- "serde_json",
- "serde_with",
- "tauri",
- "tauri-build",
- "thiserror",
- "tokio",
 ]
 
 [[package]]
