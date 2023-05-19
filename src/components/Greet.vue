@@ -102,8 +102,8 @@ onMounted(() => {
         <n-input
           :style="{ width: '100%' }"
           placeholder="请输入bduss"
-          :value="input_value"
           :on-blur="blur"
+          v-model:value="input_value"
           type="password"
         />
         <n-button
