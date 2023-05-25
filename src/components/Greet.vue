@@ -7,6 +7,7 @@ import type { DataTableColumns } from "naive-ui";
 const message = useMessage();
 const loading = ref(false);
 const input_value = ref("");
+const percentage_value = ref<string>("0")
 type Song = {
   name: string;
   title: string;
@@ -17,11 +18,14 @@ const blur = (e: any) => {
 };
 
 async function click() {
-  message.info("正在签到");
   loading.value = true;
+  let a: number = 0;
+  let data_lenth: number = data.value.length;
   data.value.map((item: any) => {
     invoke("client_sign", { kw: item.name })
       .then((res: any) => {
+        a += 1;
+        percentage_value.value = ((a / data_lenth) * 100).toFixed(2);
         data.value.map((item: any) => {
           if (item.name == res) {
             item.title = "已签到";
@@ -107,6 +111,7 @@ onMounted(() => {
           type="password"
         />
         <n-button
+          dashed
           type="primary"
           :loading="loading"
           @click="get_favorite_name"
@@ -114,15 +119,24 @@ onMounted(() => {
         >
           获取贴吧名称
         </n-button>
+        <n-button
+          type="primary"
+          :loading="loading"
+          @click="click"
+          v-if="data.length > 0"
+        >
+          点击签到
+        </n-button>
       </n-input-group>
-      <n-button
-        type="primary"
-        :loading="loading"
-        @click="click"
+
+      <n-progress
         v-if="data.length > 0"
-      >
-        点击签到
-      </n-button>
+        type="line"
+        :percentage=percentage_value
+        :indicator-placement="'inside'"
+        status="success"
+        processing
+      />
       <n-data-table
         :columns="columns"
         :data="data"
