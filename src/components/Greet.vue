@@ -6,7 +6,9 @@ import type { DataTableColumns } from "naive-ui";
 
 const message = useMessage();
 const loading = ref(false);
+const ali_loading = ref(false);
 const input_value = ref("");
+const ali_input_value = ref("");
 const percentage_value = ref<string>("0")
 type Song = {
   name: string;
@@ -15,6 +17,10 @@ type Song = {
 
 const blur = (e: any) => {
   input_value.value = e.target.value;
+};
+
+const ali_blur = (e: any) => {
+  ali_input_value.value = e.target.value;
 };
 
 async function click() {
@@ -40,6 +46,12 @@ async function click() {
   loading.value = false;
   message.success("签到成功");
 }
+
+
+async function ali_click() {
+
+}
+
 
 const createColumns = ({
   play,
@@ -67,7 +79,7 @@ const columns = createColumns({
 const data = ref<any>([]);
 
 const pagination = {
-  pageSize: 15,
+  pageSize: 5,
   showSizeChanger: false,
 };
 
@@ -144,6 +156,25 @@ onMounted(() => {
         :bordered="false"
       />
     </n-space>
+  </n-card>
+  <n-card title="阿里云盘签到">
+      <n-input-group>
+          <n-input
+                  :style="{ width: '100%' }"
+                  placeholder="请输入token"
+                  :on-blur="ali_blur"
+                  v-model:value="ali_input_value"
+                  type="password"
+          />
+          <n-button
+                  type="primary"
+                  :loading="ali_loading"
+                  @click="ali_click"
+                  v-if="data.length > 0"
+          >
+              点击签到
+          </n-button>
+      </n-input-group>
   </n-card>
 </template>
 
