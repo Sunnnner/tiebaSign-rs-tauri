@@ -1,3 +1,4 @@
+#[warn(non_snake_case)]
 use serde::Deserialize;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
