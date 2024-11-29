@@ -1,66 +1,56 @@
-#[warn(non_snake_case)]
-use serde::Deserialize;
-use serde::Serialize;
-use serde_with::{serde_as, DisplayFromStr};
+pub mod api;
+pub mod utils;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Tbs {
-    pub tbs: String,
-    is_login: i32,
+use std::sync::Arc;
+
+use serde_json::json;
+use tauri::Manager;
+use utils::error::Error;
+
+// AppState 结构体定义
+pub struct AppState {
+    config_path: std::path::PathBuf,
 }
 
-#[serde_as]
-#[derive(Debug, Serialize, thiserror::Error)]
-#[serde(tag = "type", content = "message")]
-pub enum Error {
-    #[error("http error")]
-    Http(
-        #[serde_as(as = "DisplayFromStr")]
-        #[from]
-        reqwest::Error,
-    ),
-    #[error("serde error")]
-    Serde(
-        #[serde_as(as = "DisplayFromStr")]
-        #[from]
-        serde_json::Error,
-    ),
-    #[error("Infallible error")]
-    Infallible(
-        #[serde_as(as = "DisplayFromStr")]
-        #[from]
-        std::convert::Infallible,
-    ),
-    #[error("SystemTimeError")]
-    SystemTimeError(
-        #[serde_as(as = "DisplayFromStr")]
-        #[from]
-        std::time::SystemTimeError,
-    ),
-    #[error("std error")]
-    Std(
-        #[serde_as(as = "DisplayFromStr")]
-        #[from]
-        std::io::Error,
-    ),
-    #[error("error: {0}")]
-    Error(String),
+impl AppState {
+    // 创建新的 AppState 实例
+    pub fn new(config_path: std::path::PathBuf) -> Self {
+        Self {
+            config_path,
+        }
+    }
+
+    // 获取配置文件路径
+    pub fn get_config_path(&self) -> &std::path::PathBuf {
+        &self.config_path
+    }
+
 }
 
-// 自定义错误类型
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Deserialize)]
-pub struct FollowResLike {
-    pub like_forum: Vec<FavoriteResLikeName>,
-}
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_http::init())
+        .invoke_handler(tauri::generate_handler![
+            api::core::get_favorite_name,
+            api::core::client_sign,
+            api::core::get_bduss_os 
+        ])
+        .setup(|app| {
+            let home_dir = app.path().home_dir().expect("home dir error");
+            let config_path = home_dir.join(".config").join("tb.json");
+            if !config_path.exists() {
+                std::fs::write(&config_path, json!({"bduss":""}).to_string()).expect("write config error");
+            }
+            let app_state = Arc::new(AppState::new(config_path));
 
-#[derive(Deserialize)]
-pub struct FavoriteResLikeName {
-    pub forum_name: String,
-}
+            app.manage(app_state);
 
-#[derive(Deserialize)]
-pub struct FavoriteRes {
-    pub data: FollowResLike,
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
