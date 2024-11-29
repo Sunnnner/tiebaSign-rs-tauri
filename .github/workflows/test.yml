@@ -55,7 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__ # This only works if your workflow triggers on new tags.
-          releaseName: 'CheckIn v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
+          releaseName: 'tiebaSign-rs-tauri v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
           releaseBody: '签到助手'
           releaseDraft: false
           prerelease: true
