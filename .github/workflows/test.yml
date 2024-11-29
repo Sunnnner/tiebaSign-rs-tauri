@@ -5,131 +5,57 @@ on:
     branches: [ main ]
 
 jobs:
-  build-baidu:
-    runs-on: ${{ matrix.os }}
+  release:
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - build: linux
-            os: ubuntu-latest
-            arch: x86_64
-            target: x86_64-unknown-linux-gnu
-          - build: macos
-            os: macos-latest
-            arch: x86_64
-            target: x86_64-apple-darwin
-          - build: windows
-            os: windows-latest
-            arch: x86_64
-            target: x86_64-pc-windows-msvc
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.platform }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 9
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: 'Setup Rust'
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install dependencies (ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-22.04'
+        # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Build
-        run: pnpm build
-
-      - name: Install rust target
-        run: rustup target add ${{ matrix.target }}
-
-      - run: pnpm tauri build
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-
-      - uses: actions/upload-artifact@v3
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
         with:
-          name: artifacts-${{ matrix.arch }}
-          path: |
-            ./target/release/bundle/deb/bai-du_0.0.1_amd64.deb
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - uses: actions/upload-artifact@v3
-        if: matrix.os == 'macos-latest'
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          name: artifacts-${{ matrix.arch }}
-          path: |
-            ./target/release/bundle/dmg/BaiDu_0.0.1_x64.dmg
+          workspaces: './src-tauri -> target'
 
-      - uses: actions/upload-artifact@v3
-        if: matrix.os == 'windows-latest'
+      - uses: pnpm/action-setup@v4
         with:
-          name: artifacts-${{ matrix.arch }}
-          path: |
-            ./target/release/bundle/msi/BaiDu_0.0.1_x64_en-US.msi
+          version: 9
 
-  release-baidu:
-    needs: build-baidu
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install xattr
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xattr
-
-      - name: Query version number
-        run: echo "version=1" >> $GITHUB_ENV
-
-      - name: Download x86_64 artifacts
-        uses: actions/download-artifact@v3
+      - uses: actions/setup-node@v4
         with:
-          name: artifacts-x86_64
-          path: artifacts/x86_64
+          node-version: 'lts/*'
+          cache: 'pnpm' # Set this to npm, yarn or pnpm.
 
-      - name: Download aarch64 artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: artifacts-aarch64
-          path: artifacts/aarch64
+      - name: Install frontend dependencies
+        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
+        run: pnpm install # Change this to npm, yarn or pnpm.
 
-      - name: Rename artifacts
-        run: |
-          mv "artifacts/x86_64/dmg/BaiDu_0.0.1_x64.dmg" "artifacts/BaiDu_0.0.1_macos_x86_64.dmg"
-          mv "artifacts/x86_64/deb/bai-du_0.0.1_amd64.deb" "artifacts/x86_64/deb/BaiDu_0.0.1_linux_x86_64.deb"
-          mv "artifacts/x86_64/BaiDu_0.0.1_x64_en-US.msi" "artifacts/BaiDu_0.0.1_windows_x86_64.msi"
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
 
-      - name: Create Release
-        uses: softprops/action-gh-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1
-          name: BaiDu v1
-          body: See the assets to download this version and install.
-          prerelease: false
-          generate_release_notes: false
-          files: ./artifacts/**/*
+          tagName: v__VERSION__ # This only works if your workflow triggers on new tags.
+          releaseName: 'CheckIn v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
+          releaseBody: '签到助手'
+          releaseDraft: false
+          prerelease: true
